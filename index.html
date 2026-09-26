@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>รายรับรายจ่าย — MoneyFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { color-scheme:light; --ink:#172923; --muted:#73817b; --paper:#fff; --canvas:#f5f8f6; --line:#e5ece8; --green:#14825d; --green-dark:#106b4c; --red:#d45b61; --gold:#d99a2b; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; color:var(--ink); font-family:"IBM Plex Sans Thai",sans-serif; background:radial-gradient(ellipse at 8% 0%,#e4f4ec 0,transparent 36%),radial-gradient(ellipse at 95% 12%,#edf1ff 0,transparent 30%),var(--canvas); }
+    header { position:relative; overflow:hidden; padding:52px max(24px,calc((100% - 1080px) / 2)) 48px; color:#fff; background:linear-gradient(118deg,#103f32,#176d50 65%,#218664); }
+    header::after { position:absolute; content:""; width:330px; height:330px; right:7%; top:-210px; border:1px solid #ffffff20; border-radius:50%; box-shadow:0 0 0 35px #ffffff0b,0 0 0 70px #ffffff08; }
+    .brand { position:relative; z-index:1; max-width:1080px; margin:auto; }
+    .eyebrow { display:inline-flex; align-items:center; gap:8px; margin-bottom:12px; color:#b8e9d1; font:700 11px "Plus Jakarta Sans",sans-serif; letter-spacing:1.8px; }
+    .eyebrow::before { content:""; width:7px; height:7px; border-radius:50%; background:#75e3ad; box-shadow:0 0 12px #75e3ad; }
+    header h1 { margin:0; font-size:clamp(30px,5vw,46px); line-height:1.2; letter-spacing:-.7px; }
+    header p { margin:10px 0 0; color:#d0e8dc; font-size:15px; }
+    main { width:min(1080px,calc(100% - 40px)); margin:30px auto 56px; }
+    .panel { padding:30px; border:1px solid #e6ede9; border-radius:20px; background:var(--paper); box-shadow:0 16px 45px #193e2c0b,0 2px 8px #193e2c08; }
+    .section-heading { display:flex; align-items:center; gap:14px; margin-bottom:24px; }
+    .heading-icon { display:grid; width:46px; height:46px; place-items:center; border-radius:14px; background:#e8f6ef; color:var(--green); font-size:22px; }
+    h2 { margin:0; font-size:22px; font-weight:700; }
+    .section-heading p { margin:2px 0 0; color:var(--muted); font-size:13px; }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+    .form-column { padding:20px; border:1px solid var(--line); border-radius:16px; background:#fcfdfc; }
+    h3 { display:flex; align-items:center; gap:8px; margin:23px 0 12px; font-size:16px; }
+    .income-title::before,.expense-title::before { display:block; width:8px; height:8px; border-radius:50%; background:var(--green); content:""; }
+    .expense-title::before { background:var(--red); }
+    label { display:block; margin:0 0 8px; color:#52615b; font-size:13px; font-weight:600; }
+    input,select,button { width:100%; min-height:46px; padding:10px 13px; border:1px solid #dce5e0; border-radius:11px; background:#fff; color:var(--ink); font:inherit; transition:border-color .18s,box-shadow .18s,transform .18s,background .18s; }
+    input::placeholder { color:#a2ada7; }
+    input:focus,select:focus { outline:none; border-color:#5cb68f; box-shadow:0 0 0 4px #14825d18; }
+    .entry { display:grid; grid-template-columns:minmax(90px,1fr) minmax(100px,140px) 64px; gap:8px; align-items:center; margin-bottom:9px; }
+    .entry:has(.custom-category:not([hidden])) { grid-template-columns:minmax(80px,1fr) minmax(110px,1fr) minmax(90px,120px) 64px; }
+    .entry button { min-height:42px; padding:8px; }
+    button { cursor:pointer; font-weight:600; }
+    button:hover { transform:translateY(-1px); }
+    button.primary { border-color:var(--green); background:var(--green); color:#fff; box-shadow:0 5px 12px #14825d24; }
+    button.primary:hover { border-color:var(--green-dark); background:var(--green-dark); }
+    button.secondary { border-color:#e2ebe6; background:#f4f8f5; color:#426154; }
+    button.secondary:hover { border-color:#c4dfd0; background:#edf7f1; }
+    .actions { display:flex; justify-content:flex-end; gap:10px; margin-top:22px; padding-top:21px; border-top:1px solid #edf1ee; }
+    .actions button { width:auto; min-width:140px; padding-inline:20px; }
+    #error { display:none; margin-bottom:16px; padding:13px 16px; border:1px solid #f1c7c5; border-radius:12px; color:#8d2b25; background:#fff2f0; }
+    #summary { margin-top:22px; }
+    .summary-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+    .metric { position:relative; overflow:hidden; padding:21px; border:1px solid #dcefe4; border-radius:15px; background:linear-gradient(145deg,#f3fbf6,#fff); }
+    .metric::after { position:absolute; right:-20px; bottom:-39px; width:100px; height:100px; border:15px solid #14825d0b; border-radius:50%; content:""; }
+    .metric.expense { border-color:#f2dfe0; background:linear-gradient(145deg,#fff6f5,#fff); }
+    .metric.expense::after { border-color:#d45b610c; }
+    .metric.balance { border-color:#f1e6cf; background:linear-gradient(145deg,#fffaf0,#fff); }
+    .metric.balance::after { border-color:#d99a2b12; }
+    .metric span { display:block; color:var(--muted); font-size:13px; font-weight:500; }
+    .metric strong { display:block; margin-top:8px; font:700 clamp(20px,3vw,27px) "Plus Jakarta Sans","IBM Plex Sans Thai",sans-serif; letter-spacing:-.5px; overflow-wrap:anywhere; }
+    .rate { margin:17px 0 0; color:var(--muted); font-size:13px; }
+    #history { margin-top:22px; }
+    .history-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px; }
+    .history-heading .section-heading { margin:0; }
+    .history-heading-actions { display:flex; align-items:center; gap:9px; }
+    .history-delete { width:auto; min-height:36px; padding:6px 11px; border-color:#f2d8d8; color:#b6484d; background:#fff7f6; font-size:12px; }
+    .history-delete:hover:not(:disabled) { border-color:#e9baba; background:#fff0ef; }
+    .history-delete:disabled { cursor:not-allowed; opacity:.45; }
+    .history-count { flex:none; padding:6px 11px; border-radius:99px; color:var(--green-dark); background:#eaf6ef; font-size:12px; font-weight:600; }
+    .history-empty { padding:26px 16px; border:1px dashed #dce7e1; border-radius:14px; color:var(--muted); text-align:center; }
+    .history-empty span { display:block; margin-bottom:7px; font-size:24px; }
+    .history-list { display:grid; gap:12px; }
+    .history-record { padding:18px; border:1px solid var(--line); border-radius:15px; background:#fcfdfc; }
+    .history-record-header { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; padding-bottom:13px; border-bottom:1px solid #edf1ee; }
+    .history-date { color:#52615b; font-size:13px; font-weight:600; }
+    .history-currency { padding:5px 10px; border-radius:8px; color:var(--green-dark); background:#eaf6ef; font:600 12px "Plus Jakarta Sans",sans-serif; }
+    .history-items { display:grid; grid-template-columns:1fr 1fr; gap:14px; padding:14px 0; }
+    .history-items h4 { margin:0 0 7px; color:#52615b; font-size:12px; }
+    .history-item { display:flex; justify-content:space-between; gap:8px; padding:4px 0; color:var(--muted); font-size:12px; }
+    .history-item strong { color:var(--ink); font-weight:500; text-align:right; }
+    .history-totals { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; padding-top:12px; border-top:1px solid #edf1ee; }
+    .history-total span { display:block; color:var(--muted); font-size:11px; }
+    .history-total strong { display:block; margin-top:3px; font:600 13px "Plus Jakarta Sans","IBM Plex Sans Thai",sans-serif; overflow-wrap:anywhere; }
+    .history-total.balance strong { color:var(--green-dark); }
+    .history-total.source-balance strong { color:#a66d12; }
+    [hidden] { display:none !important; }
+    @media (max-width:700px) { header { padding-top:38px; padding-bottom:36px; } main { width:calc(100% - 24px); margin-top:18px; } .panel { padding:20px; border-radius:16px; } .form-grid,.summary-grid { grid-template-columns:1fr; } .form-column { padding:16px; } .entry { grid-template-columns:minmax(0,1fr) minmax(90px,.8fr) 58px; gap:6px; } .entry:has(.custom-category:not([hidden])) { grid-template-columns:repeat(2,minmax(0,1fr)); } .entry:has(.custom-category:not([hidden])) button { grid-column:auto; } .actions { flex-direction:column-reverse; } .actions button { width:100%; } .history-items { grid-template-columns:1fr; gap:8px; } .history-totals { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+    @media (max-width:380px) { .entry { grid-template-columns:1fr 1fr; } .entry button { grid-column:1 / -1; } .entry:has(.custom-category:not([hidden])) button { grid-column:1 / -1; } }
+  </style>
+</head>
+<body>
+  <header><div class="brand"><span class="eyebrow">MONEYFLOW · PERSONAL FINANCE</span><h1>จัดการเงินของคุณ<br>ให้ง่ายขึ้นในทุกวัน</h1><p>ติดตามรายรับและรายจ่าย พร้อมแปลงสกุลเงินได้ในที่เดียว</p></div></header>
+  <main>
+    <div id="error" role="alert"></div>
+    <section class="panel">
+      <div class="section-heading"><span class="heading-icon" aria-hidden="true">↗</span><div><h2>บันทึกรายการ</h2><p>เพิ่มรายการและเลือกสกุลเงินที่ต้องการคำนวณ</p></div></div>
+      <div class="form-grid">
+        <div class="form-column">
+          <label for="fromCurrency">กรุณากรอกสกุลเงิน :</label><select id="fromCurrency"></select>
+          <h3 class="income-title">รายรับ</h3><div id="incomeRows"></div>
+          <button class="secondary" type="button" onclick="addRow('income')">+ เพิ่มรายรับ</button>
+        </div>
+        <div class="form-column">
+          <label for="toCurrency">กรุณากรอกสกุลเงินปลายทาง :</label><select id="toCurrency"></select>
+          <h3 class="expense-title">รายจ่าย</h3><div id="expenseRows"></div>
+          <button class="secondary" type="button" onclick="addRow('expense')">+ เพิ่มรายจ่าย</button>
+        </div>
+      </div>
+      <div class="actions"><button class="secondary" type="button" onclick="resetForm()">ล้างฟอร์มปัจจุบัน</button><button class="primary" type="button" onclick="calculateSummary()">บันทึกและคำนวณ&nbsp; →</button></div>
+    </section>
+    <section id="summary" class="panel" hidden>
+      <div class="section-heading"><span class="heading-icon" aria-hidden="true">▤</span><div><h2>สรุปผล</h2><p>ภาพรวมการเงินของคุณในสกุลเงินปลายทาง</p></div></div>
+      <div class="summary-grid"><div class="metric"><span>รายรับรวม</span><strong id="incomeTotal">-</strong></div><div class="metric expense"><span>รายจ่ายรวม</span><strong id="expenseTotal">-</strong></div><div class="metric balance"><span>คงเหลือ</span><strong id="balanceTotal">-</strong></div></div>
+      <p class="rate" id="rateInfo"></p>
+    </section>
+    <section id="history" class="panel" aria-labelledby="historyTitle">
+      <div class="history-heading"><div class="section-heading"><span class="heading-icon" aria-hidden="true">◷</span><div><h2 id="historyTitle">ประวัติรายการ</h2><p>บันทึกวันและเวลาอัตโนมัติ เก็บไว้ในเบราว์เซอร์นี้</p></div></div><div class="history-heading-actions"><span id="historyCount" class="history-count">0 รายการ</span><button id="clearHistoryButton" class="history-delete" type="button" onclick="clearHistory()" disabled>ลบประวัติ</button></div></div>
+      <div id="historyList" class="history-list" aria-live="polite"></div>
+    </section>
+  </main>
+  <script src="dashboard.js"></script>
+</body>
+</html>
